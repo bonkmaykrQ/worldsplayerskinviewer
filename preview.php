@@ -1,15 +1,29 @@
 <?php 
-error_reporting(E_ALL ^ E_WARNING); 
+error_reporting(E_ERROR); 
 
 $path = $_GET["path"];
 if(!isset($path)) {
 	$path = "";
 }
+
+$width = $_GET["w"];
+if(!isset($width)) {
+	$width = "956";
+}
+
+$height = $_GET["h"];
+if(!isset($height)) {
+	$height = "584";
+}
 ?>
 
+<!DOCTYPE html>
 <html>
 	<head>
-		<style>
+	    <!--<script>
+	        window.self.resizeTo(<?php echo $width;?>, <?php echo $height;?>);
+	    </script>-->
+	    <style>
 			/*
 				TODO: make viewer more flexible,
 				rtpanel size should automatically
@@ -26,12 +40,13 @@ if(!isset($path)) {
 				this isn't as hard as it sounds, use calc()
 			*/
 			
-			body {margin:0px;}
+			body {
+			    margin:0px;
+			}
 			
 			* {
 				--driveBarColor:rgb(25, 25, 25);
 				--chatBoxColor:rgb(255, 255, 255);
-				--playerSkinableRightHeight:435px;
 				-webkit-user-select: none; /* Safari */
 				-ms-user-select: none; /* IE 10 and IE 11 */
 				user-select: none; /* Standard syntax */
@@ -40,21 +55,38 @@ if(!isset($path)) {
 			
 			#player {
 				display:block;
-				height:584px;
-				width:956px;
+				height:100%;
+				width:100%;
+				
+				/*Quirk fix for Chrome and it's forks*/
+				/*Thanks Google, you fucking retards!*/
+				position:fixed;
+				overflow:hidden;top:0px;left:0px; /*this part is less important but i keep it here for cleanliness*/
+				min-height: 441px;
+				min-width: 586px;
 			}
 			
 			#playerViewportContainer {
 				display:block;
-				width:956px;
-				height:435px;
+				width:100%;
+				height:calc(100% - 149px);
 				padding:0px;
 				margin:0px;
 			}
+      
+      #playerViewport {
+	      width:calc(100% - 97px);
+	      height:100%;
+	      float: left;
+	      background: url("viewport.png");
+	      background-size: cover;
+	      background-position: center;
+	      image-rendering: pixelated;
+      }
 			
 			#playerChatboxContainer {
 				display:block;
-				width:956px;
+				width:100%;
 				height:149px;
 				background-color:black;
 				padding:0px;
@@ -63,7 +95,7 @@ if(!isset($path)) {
 			
 			#playerSkinableRight {
 				width:97px;
-				height:var(--playerSkinableRightHeight);
+				height:100%;
 				padding:0px;
 				margin:0px;
 				background-color:var(--driveBarColor);
@@ -134,13 +166,13 @@ if(!isset($path)) {
 			}
 			
 			/*Friends list*/
-			#rtpanel > #friendsList {
+			#playerSkinableRight > #friendsList {
 				background:url("<?php echo $path;?>friends.gif");
 				background-position-x: -0px;
-				height:calc(var(--playerSkinableRightHeight) - 182px);
+				height:calc(100% - 182px);
 				position:relative;
 			}
-			#rtpanel > #friendsList > #friend {
+			#playerSkinableRight > #friendsList > #friend {
 				background:url("<?php echo $path;?>friends.gif");
 				background-position-x: -97px;
 				height:11px;
@@ -150,9 +182,9 @@ if(!isset($path)) {
 				padding-left:21px;
 				font-family:"Arial", "Helvetica", "MS Mincho";
 			}
-			#rtpanel > #friendsList > #friend:hover {background-position-x: -194px;}
-			#rtpanel > #friendsList > #friend:active {background-position-x: -291px;}
-			#rtpanel > #friendsList > #buttonMoreFriends {
+			#playerSkinableRight > #friendsList > #friend:hover {background-position-x: -194px;}
+			#playerSkinableRight > #friendsList > #friend:active {background-position-x: -291px;}
+			#playerSkinableRight > #friendsList > #buttonMoreFriends {
 				height:11px;
 				background:url("<?php echo $path;?>mfriends.gif");
 				background-position-x: -97px;
@@ -161,8 +193,8 @@ if(!isset($path)) {
 				right: 0px;
 				width: 100%;
 			}
-			#rtpanel > #friendsList > #buttonMoreFriends:hover {background-position-x: -194px;}
-			#rtpanel > #friendsList > #buttonMoreFriends:active {background-position-x: -291px;}
+			#playerSkinableRight > #friendsList > #buttonMoreFriends:hover {background-position-x: -194px;}
+			#playerSkinableRight > #friendsList > #buttonMoreFriends:active {background-position-x: -291px;}
 			
 			/*Bottom bar*/
 			#playerSkinableBottom {
@@ -170,42 +202,46 @@ if(!isset($path)) {
 				margin:0px;
 				padding:0px;
 				height:19px;
-				width:956px;
+				width:100%;
 				background-color:var(--driveBarColor);
 				
 				color:white;
 				font-size:12px;
 				font-family:"Arial", "Helvetica", "MS Mincho";
+				position: relative;
 			}
 			
 			#playerQuitContainer {
-				float:left;
 				width:130px;
 				height:19px;
+				position: absolute;
+				left: 0;
+				top: 0;
 			}
 			#playerUsernameContainer {
-				float:left;
-				width:223px;
-				height:19px;
-				text-align: left;
+	      position: absolute;
+	      left: 0;
+	      top: 10%;
 			}
 			#playerDriveContainer {
-				float:left;
-				width:223px;
 				height:19px;
+				width: calc(100% - 287px);
+				margin-left: 130px;
+				margin-right: 157px;
+				position: relative;
 			}
 			#playerStatusContainer {
-				float:left;
-				width:223px;
-				height:19px;
-				text-align: right;
+	      position: absolute;
+	      right: 0;
+	      top: 10%;
 			}
 			#playerMapContainer {
-				float:right;
 				width:157px; /*had to remove one pixel to make it fit... close enough?*/
 				height:19px;
-				text-align: right;
 				overflow-y:visible; /*enable CSS overflow on the button for visual accuracy*/
+				position: absolute;
+				right: 0;
+				top: 0;
 			}
 			
 			#buttonQuit {
@@ -237,18 +273,22 @@ if(!isset($path)) {
 			#buttonMap:active {background-position-x: -294px;}
 			
 			#playerChatboxSubContainer {
-				background:url("chatbox.png"), var(--chatBoxColor);
+				background:url("chatboxleft.png"), url("chatboxright.png"), url("chatboxcenter.png"), var(--chatBoxColor);
 				width:100%;
 				height:130px;
 				margin:0px;
 				padding:0px;
+				background-repeat: no-repeat, no-repeat, repeat-x;
+				background-position: left center, right center, center center;
 			}
 		</style>
+		
+		<link rel="stylesheet" href="<?php echo $path;?>override.css">
 	</head>
 	<body>
 		<div id="player">
 			<div id="playerViewportContainer">
-			<img id="playerViewport" src="viewport.png"/>
+			<div id="playerViewport"></div>
 				<div id="playerSkinableRight">
 					<div id="rtpanel">
 						<div id="buttonHelp" class="rtpanelButton"></div>
@@ -260,6 +300,7 @@ if(!isset($path)) {
 						<div id="buttonVIP" class="rtpanelButton"></div>
 						
 						<div id="friendsListTitle"></div>
+					</div>
 						
 						<div id="friendsList">
 							<div id="friend">dosfox</div>
@@ -273,23 +314,19 @@ if(!isset($path)) {
 							<div id="friend">drawadog</div>
 							<div id="buttonMoreFriends"></div>
 						</div>
-					</div>
 				</div>
 			</div>
 			
 			<div id="playerChatboxContainer">
 				<div id="playerSkinableBottom">
-					<div id="playerQuitContainer">
-						<div id="buttonQuit"></div>
-					</div>
-					<div id="playerUsernameContainer">VIP kangang4014</div>
+					<div id="playerQuitContainer"><div id="buttonQuit"></div></div>
 					<div id="playerDriveContainer">
+					  <div id="playerUsernameContainer">VIP kangang4014</div>
 						<div id="buttonDrive"></div>
+					  <div id="playerStatusContainer">Sleeping...</div>
 					</div>
-					<div id="playerStatusContainer">Sleeping...</div>
-					<div id="playerMapContainer">
-						<div id="buttonMap"></div>
-					</div>
+	        <div id="playerMapContainer"><div id="buttonMap"></div></div>
+					
 				</div>
 				<div id="playerChatboxSubContainer">
 					<!--
